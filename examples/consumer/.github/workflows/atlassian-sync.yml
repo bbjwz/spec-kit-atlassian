@@ -1,0 +1,94 @@
+# Copy to the consuming repository after configuring the trusted bindings and pins.
+name: Atlassian synchronization
+on:
+  workflow_dispatch:
+    inputs:
+      owner:
+        type: choice
+        options: [spec-kit-atlassian, agentstandards-atlassian]
+        required: true
+      operation:
+        type: choice
+        options: [sync, reconcile, reconcile-decisions, auto]
+        default: sync
+      binding:
+        type: string
+        default: ''
+      source_sha:
+        type: string
+        default: ''
+      decision_key:
+        type: string
+        default: ''
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  push:
+    branches: [main]
+    paths: ['.specify/integrations/atlassian/**']
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: atlassian-integration-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    environment: atlassian-sandbox
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: control
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: data
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7
+      - name: Install pinned, enabled runtimes
+        working-directory: control
+        env:
+          SPECKIT_ATLASSIAN_REF: ${{ vars.SPECKIT_ATLASSIAN_REF }}
+          AGENTSTANDARDS_ATLASSIAN_REF: ${{ vars.AGENTSTANDARDS_ATLASSIAN_REF }}
+        run: |
+          uv run --no-project --with PyYAML python - <<'PY'
+          import os, pathlib, re, subprocess, yaml
+          cfg = yaml.safe_load(pathlib.Path('.specify/integrations/atlassian/config.yml').read_text())
+          refs = {'spec-kit-atlassian': 'SPECKIT_ATLASSIAN_REF',
+                  'agentstandards-atlassian': 'AGENTSTANDARDS_ATLASSIAN_REF'}
+          for owner in cfg['enabled_integrations']:
+              pin = os.environ[refs[owner]]
+              if not re.fullmatch(r'[a-f0-9]{40}', pin):
+                  raise SystemExit('Set each enabled integration ref to a reviewed full commit SHA')
+              subprocess.run(['uv', 'tool', 'install', 'git+https://github.com/bbjwz/' + owner + '@' + pin], check=True)
+          PY
+      - name: Synchronize registered features
+        working-directory: control
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ATLASSIAN_EMAIL: ${{ secrets.ATLASSIAN_EMAIL }}
+          ATLASSIAN_API_TOKEN: ${{ secrets.ATLASSIAN_API_TOKEN }}
+          INPUT_OWNER: ${{ inputs.owner }}
+          INPUT_OPERATION: ${{ inputs.operation }}
+          INPUT_BINDING: ${{ inputs.binding }}
+          INPUT_SHA: ${{ inputs.source_sha }}
+          INPUT_DECISION: ${{ inputs.decision_key }}
+        run: |
+          gh auth setup-git
+          uv run --no-project --with PyYAML python - <<'PY'
+          import os, pathlib, subprocess, yaml
+          cfg = yaml.safe_load(pathlib.Path('.specify/integrations/atlassian/config.yml').read_text())
+          owners = [os.environ['INPUT_OWNER']] if os.environ['INPUT_OWNER'] else cfg['enabled_integrations']
+          for owner in owners:
+              if owner not in cfg['enabled_integrations']:
+                  raise SystemExit('Integration is not enabled')
+              subprocess.run([owner + '-worker', '--control', str(pathlib.Path.cwd()),
+                  '--data', str(pathlib.Path('../data').resolve()), '--owner', owner,
+                  '--operation', os.environ['INPUT_OPERATION'] or 'auto',
+                  '--binding', os.environ['INPUT_BINDING'], '--source-sha', os.environ['INPUT_SHA'],
+                  '--decision-key', os.environ['INPUT_DECISION']], check=True)
+          PY

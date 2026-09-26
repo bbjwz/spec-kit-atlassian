@@ -1,0 +1,50 @@
+schema_version: '1.0'
+extension:
+  id: atlassian
+  name: spec-kit-atlassian
+  version: 0.1.0
+  description: Publish Spec Kit plans and tasks to Jira and Confluence Cloud
+  category: integration
+  effect: read-write
+  author: bbjwz
+  repository: https://github.com/bbjwz/spec-kit-atlassian
+  license: MIT
+requires:
+  speckit_version: '>=1.0.8,<2.0.0'
+  tools:
+  - name: uv
+    required: true
+  - name: gh
+    required: true
+provides:
+  commands:
+  - name: speckit.atlassian.init
+    file: commands/init.md
+    description: 'init: Publish Spec Kit plans and tasks to Jira and Confluence Cloud'
+  - name: speckit.atlassian.doctor
+    file: commands/doctor.md
+    description: 'doctor: Publish Spec Kit plans and tasks to Jira and Confluence
+      Cloud'
+  - name: speckit.atlassian.preview
+    file: commands/preview.md
+    description: 'preview: Publish Spec Kit plans and tasks to Jira and Confluence
+      Cloud'
+  - name: speckit.atlassian.sync
+    file: commands/sync.md
+    description: 'sync: Publish Spec Kit plans and tasks to Jira and Confluence Cloud'
+  - name: speckit.atlassian.status
+    file: commands/status.md
+    description: 'status: Publish Spec Kit plans and tasks to Jira and Confluence
+      Cloud'
+  - name: speckit.atlassian.adopt
+    file: commands/adopt.md
+    description: 'adopt: Publish Spec Kit plans and tasks to Jira and Confluence Cloud'
+  - name: speckit.atlassian.reconcile
+    file: commands/reconcile.md
+    description: 'reconcile: Publish Spec Kit plans and tasks to Jira and Confluence
+      Cloud'
+tags:
+- jira
+- confluence
+- integration
+- visibility
