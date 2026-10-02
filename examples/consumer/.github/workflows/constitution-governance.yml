@@ -1,0 +1,46 @@
+# Install on the trusted default branch. Never checkout a PR or execute its code.
+name: Constitution governance
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Constitution change signal']
+    types: [completed]
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, closed]
+  schedule:
+    - cron: '4,19,34,49 * * * *'
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+concurrency:
+  group: atlassian-integration-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  governance:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    environment: atlassian-sandbox
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7
+      - name: Install trusted runtime
+        env:
+          RUNTIME_REF: ${{ vars.SPECKIT_ATLASSIAN_REF }}
+        run: |
+          python - <<'PY'
+          import os, re, subprocess
+          ref = os.environ['RUNTIME_REF']
+          if not re.fullmatch(r'[a-f0-9]{40}', ref):
+              raise SystemExit('Pin SPECKIT_ATLASSIAN_REF to a reviewed full commit SHA')
+          subprocess.run(['uv', 'tool', 'install', 'git+https://github.com/bbjwz/spec-kit-atlassian@' + ref], check=True)
+          PY
+      - name: Publish, reconcile Jira decisions, and refresh feature PR gates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ATLASSIAN_EMAIL: ${{ secrets.ATLASSIAN_EMAIL }}
+          ATLASSIAN_API_TOKEN: ${{ secrets.ATLASSIAN_API_TOKEN }}
+        run: spec-kit-atlassian-project-worker --project .

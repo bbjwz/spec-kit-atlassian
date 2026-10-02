@@ -24,6 +24,8 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy src
       - run: uv run python -m pytest --cov --cov-report=term-missing
+      - name: Independent companion interoperability
+        run: uv run --with 'agentstandards-atlassian @ git+https://github.com/bbjwz/agentstandards-atlassian@6ee448169db0ece00cb4920b4e811a515730d55e' python -m pytest tests/test_interop.py
       - run: uv build
       - run: uv run python scripts/build_release.py
   install:

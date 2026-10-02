@@ -25,6 +25,18 @@ before production use or community release. No live tenant has been configured b
 - Removed tasks retain their issues and history. Explicit task-ID migration maps handle renumbering.
 - Remote writes run in one serialized GitHub Actions worker; CLI previews are read-only.
 
+## Constitution comes first
+
+Initialize governance before creating a feature with `init-project`. Push a constitution draft
+from the registered review branch to publish one Confluence governance page and a Jira review task.
+An authorized Jira approval activates the reviewed revision immediately; every pushed amendment
+pauses feature work until approved or withdrawn. Git audit PRs preserve the decision afterward.
+
+Install the accompanying **constitution-gate** preset and enable enforcement only after sandbox
+acceptance. See [constitution setup and approval](docs/CONSTITUTION.md) for commands, workflow
+configuration, migration, branch protection and exact timing. Agentstandards keeps its separate
+architecture approval gate. Feature synchronization no longer writes constitution content.
+
 ## Install and configure
 
 Review a release/archive before installing. During development:

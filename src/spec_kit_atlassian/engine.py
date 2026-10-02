@@ -14,6 +14,9 @@ OWNER = "spec-kit-atlassian"
 
 
 def synchronize(root: Path, cfg: Settings, binding: Binding, cloud: Cloud, save_binding) -> dict:
+    from .governance.cli import feature_gate
+
+    governance = feature_gate(root)
     sha = revision(root, require_clean=True)
     feature = load_feature(root, binding)
     for text in feature["documents"].values():
@@ -161,31 +164,17 @@ def synchronize(root: Path, cfg: Settings, binding: Binding, cloud: Cloud, save_
             content,
             mimetypes.guess_type(path.name)[0] or "application/octet-stream",
         )
-    page_action = confluence.update(
-        page, binding.identity, OWNER, build_sections(feature, binding, cfg, sha, epic)
-    )
-    constitution = inside(root, ".specify/memory/constitution.md")
-    if constitution.exists():
-        from .common.confluence import Section
-        from .common.render import markdown
+    sections = build_sections(feature, binding, cfg, sha, epic)
+    if governance:
+        from html import escape
 
-        text = constitution.read_text()
-        scan(text)
-        project_identity = "project:" + binding.repository_id
-        overview = confluence.ensure_page(
-            project_identity, cfg.github_repository, cfg.project_page_id
-        )
-        confluence.update(
-            overview,
-            project_identity,
-            OWNER,
-            [Section("constitution", "Project constitution", markdown(text))],
-        )
-        jira.remote_link(
-            epic,
-            f"{cfg.site}/wiki/spaces/{cfg.confluence_space_id}/pages/{overview}",
-            "Project principles",
-        )
+        from .common.confluence import Section
+
+        body = "<p>Constitution: " + escape(governance["state"]) + "</p>"
+        if governance.get("page_url"):
+            body += '<p><a href="' + escape(governance["page_url"]) + '">Project governance</a></p>'
+        sections.append(Section("governance", "Constitution approval", body, True))
+    page_action = confluence.update(page, binding.identity, OWNER, sections)
     jira.remote_link(
         epic,
         f"{cfg.site}/wiki/spaces/{cfg.confluence_space_id}/pages/{page}",

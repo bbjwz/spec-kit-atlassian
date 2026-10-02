@@ -6,6 +6,12 @@ from spec_kit_atlassian.engine import reconcile_tasks, synchronize
 from spec_kit_atlassian.specs import load_feature, parse_tasks
 
 
+@pytest.fixture(autouse=True)
+def legacy_feature_governance(monkeypatch):
+    # These fixtures represent the original feature-only installation.
+    monkeypatch.setattr("spec_kit_atlassian.governance.cli.feature_gate", lambda root: None)
+
+
 def test_feature_without_tasks(project, binding):
     (project / binding.feature_path / "tasks.md").unlink()
     (project / binding.feature_path / "plan.md").unlink()

@@ -1,0 +1,45 @@
+schema_version: '1.0'
+preset:
+  id: constitution-gate
+  name: Constitution Approval Gate
+  version: 0.2.0
+  description: Require live Jira constitution approval before feature work
+  author: bbjwz
+  repository: https://github.com/bbjwz/spec-kit-atlassian
+  license: MIT
+requires:
+  speckit_version: '>=1.0.8,<2.0.0'
+  extensions:
+  - atlassian
+provides:
+  templates:
+  - type: command
+    name: speckit.specify
+    file: commands/speckit.specify.md
+    description: Run the constitution gate first
+    replaces: speckit.specify
+    strategy: wrap
+  - type: command
+    name: speckit.clarify
+    file: commands/speckit.clarify.md
+    description: Run the constitution gate first
+    replaces: speckit.clarify
+    strategy: wrap
+  - type: command
+    name: speckit.plan
+    file: commands/speckit.plan.md
+    description: Run the constitution gate first
+    replaces: speckit.plan
+    strategy: wrap
+  - type: command
+    name: speckit.tasks
+    file: commands/speckit.tasks.md
+    description: Run the constitution gate first
+    replaces: speckit.tasks
+    strategy: wrap
+  - type: command
+    name: speckit.implement
+    file: commands/speckit.implement.md
+    description: Run the constitution gate first
+    replaces: speckit.implement
+    strategy: wrap

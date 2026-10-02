@@ -95,6 +95,10 @@ class Tenant:
                                     "Blocked",
                                     "Done",
                                     "Waiting for input",
+                                    "Awaiting approval",
+                                    "Approved",
+                                    "Changes requested",
+                                    "Withdrawn",
                                 )
                             ]
                         }

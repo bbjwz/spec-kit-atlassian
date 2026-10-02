@@ -2,7 +2,7 @@ schema_version: '1.0'
 extension:
   id: atlassian
   name: spec-kit-atlassian
-  version: 0.1.0
+  version: 0.2.0
   description: Publish Spec Kit plans and tasks to Jira and Confluence Cloud
   category: integration
   effect: read-write
@@ -43,8 +43,67 @@ provides:
     file: commands/reconcile.md
     description: 'reconcile: Publish Spec Kit plans and tasks to Jira and Confluence
       Cloud'
+  - name: speckit.atlassian.init-project
+    file: commands/init-project.md
+    description: 'Project constitution governance: init-project'
+  - name: speckit.atlassian.constitution-preview
+    file: commands/constitution-preview.md
+    description: 'Project constitution governance: constitution.preview'
+  - name: speckit.atlassian.constitution-publish
+    file: commands/constitution-publish.md
+    description: 'Project constitution governance: constitution.publish'
+  - name: speckit.atlassian.constitution-status
+    file: commands/constitution-status.md
+    description: 'Project constitution governance: constitution.status'
+  - name: speckit.atlassian.constitution-gate
+    file: commands/constitution-gate.md
+    description: 'Project constitution governance: constitution.gate'
+  - name: speckit.atlassian.constitution-reconcile
+    file: commands/constitution-reconcile.md
+    description: 'Project constitution governance: constitution.reconcile'
+  - name: speckit.atlassian.constitution-pull-approved
+    file: commands/constitution-pull-approved.md
+    description: 'Project constitution governance: constitution.pull-approved'
+  - name: speckit.atlassian.constitution-guard
+    file: commands/constitution-guard.md
+    description: Enforce live constitution approval when governance is enabled
+  - name: speckit.atlassian.constitution-after-edit
+    file: commands/constitution-after-edit.md
+    description: Report constitution publication and review state after authoring
 tags:
 - jira
 - confluence
 - integration
 - visibility
+hooks:
+  before_specify:
+    command: speckit.atlassian.constitution-guard
+    priority: 1
+    optional: false
+    description: Require live Jira constitution approval before feature work
+  before_clarify:
+    command: speckit.atlassian.constitution-guard
+    priority: 1
+    optional: false
+    description: Require live Jira constitution approval before feature work
+  before_plan:
+    command: speckit.atlassian.constitution-guard
+    priority: 1
+    optional: false
+    description: Require live Jira constitution approval before feature work
+  before_tasks:
+    command: speckit.atlassian.constitution-guard
+    priority: 1
+    optional: false
+    description: Require live Jira constitution approval before feature work
+  before_implement:
+    command: speckit.atlassian.constitution-guard
+    priority: 1
+    optional: false
+    description: Require live Jira constitution approval before feature work
+  after_constitution:
+    command: speckit.atlassian.constitution-after-edit
+    priority: 20
+    optional: false
+    description: Report publication state; pushed drafts are published by the trusted
+      worker

@@ -2,7 +2,8 @@
 
 1. Select an existing Jira Cloud project and its board plus a Confluence Cloud space. Obtain
    the numeric space ID from the Confluence API. Start in a sandbox with representative workflows.
-2. Initialize from a named feature branch. Review configuration/binding changes and establish them
+2. First complete [constitution governance setup](CONSTITUTION.md), including its staged rollout.
+   Then initialize features from a named feature branch. Review configuration/binding changes and establish them
    on the trusted default branch. Keep `feature_refs` pointing at each active feature branch.
 3. Map Jira issue types to existing non-subtask types. Default: Epic for features and Task for
    implementation, council, and decisions. No new board or issue hierarchy is created.
@@ -52,7 +53,8 @@ remain authoritative; discussion belongs in comments or the Human notes section.
 requires Confluence's native Jira macro and a configured Jira/Confluence connection for live task
 lists. If the macro cannot resolve the Jira site, configure that native connection first.
 
-Constitution content appears once on a project overview. Explicit `attachments` must be files
+Constitution content appears once on the project governance page, published by its own worker.
+Feature synchronization only links to that page and shows its current gate state. Explicit `attachments` must be files
 under the selected feature directory; council/transcript folders are excluded by Spec Kit's
 publisher. There is a 10 MB attachment budget and configurable page-size budget. Review binary
 attachments separately; automated text secret detection is not a confidentiality classifier.

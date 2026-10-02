@@ -1,0 +1,13 @@
+# Unprivileged wake-up signal. Install on the default AND registered review branch.
+# The trusted worker ignores this run's artifacts and re-reads registered Git data.
+name: Constitution change signal
+on:
+  push:
+    paths: ['.specify/memory/constitution.md']
+permissions:
+  contents: read
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Constitution source changed; the trusted governance worker will verify registration.'
