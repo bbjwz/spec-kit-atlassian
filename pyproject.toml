@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit-atlassian"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic Spec Kit publishing for Jira and Confluence Cloud"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,6 +16,7 @@ test = ["pytest>=8,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1", "mypy>=1.15,<2", "
 
 [project.scripts]
 spec-kit-atlassian = "spec_kit_atlassian.cli:main"
+spec-kit-atlassian-project-worker = "spec_kit_atlassian.governance.worker:main"
 spec-kit-atlassian-worker = "spec_kit_atlassian.common.worker:main"
 
 [tool.pytest.ini_options]

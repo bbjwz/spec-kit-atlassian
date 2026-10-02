@@ -6,14 +6,16 @@ Automated verification covers the deterministic runtime with stateful REST fakes
 inputs, ownership conflicts, concurrency, retry behavior, and package installation. CI runs
 Python 3.11/3.14 and Spec Kit 1.0.8/1.0.10 installation checks.
 
-Local evidence (2026-09-26):
+Local evidence (2026-10-02, constitution governance 0.2.0):
 
-- 33 standalone tests passed on Python 3.14; lint, formatting and mypy passed.
-- Two additional cross-package scenarios passed with both installation orders and no-op resync.
-- Wheel, source distribution and allowlisted extension archive built successfully.
-- Clean Spec Kit 1.0.8 and 1.0.10 installation and command bootstrap passed.
-- Shared protocol runtime source matches between both integration packages.
-- The optional cross-package test is skipped in standalone CI unless the peer is on PYTHONPATH.
+- 65 standalone tests cover publication, live approval gates, amendment pauses, withdrawal,
+  source races, altered/unauthorized evidence, partial-write recovery and narrow PR exemptions.
+- Two independent companion-publisher scenarios check both creation orders and no-op resync.
+- Lint, formatting, mypy and wheel/source/extension/preset builds passed locally.
+- Clean Spec Kit 1.0.8 and 1.0.10 installation registers the extension and all five guards.
+- The generated tasks command contains both the constitution and Agentstandards core gate.
+- CI now runs the companion test against its immutable merged commit on Python 3.11/3.14.
+- Shared feature protocol runtime source remains unchanged.
 
 Pending external acceptance:
 
@@ -22,6 +24,9 @@ Pending external acceptance:
 - Publish and visually inspect the feature page, Expand sections, Jira macro, and links.
 - Verify the live status/decision round trip, repeated no-op sync, and simultaneous publishers.
 - Exercise the installed consumer workflow and permissions in the target repository.
+- Verify constitution-only publication, approval before merge, project-wide amendment pause,
+  authorized withdrawal, the Git audit PR, and the required constitution/approved check.
+- Only then enable governance enforcement in an existing consumer project.
 
 Until those checks pass, do not describe the integration as deployed, production-ready,
 or eligible for community release. Draft PRs are for review of the tested local implementation.

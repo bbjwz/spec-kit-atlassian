@@ -28,6 +28,9 @@ def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Spec Kit → Jira/Confluence Cloud")
     p.add_argument("--project", type=Path, default=Path.cwd())
     sub = p.add_subparsers(dest="command", required=True)
+    from .governance.cli import arguments
+
+    arguments(sub)
     init = sub.add_parser("init")
     for flag in ("feature", "repository", "site", "jira-project", "space-id"):
         init.add_argument("--" + flag, required=True)
@@ -47,6 +50,10 @@ def parser() -> argparse.ArgumentParser:
 
 def execute(args) -> dict:
     root = args.project.resolve()
+    if args.command in ("init-project", "constitution"):
+        from .governance.cli import execute as governance_execute
+
+        return governance_execute(args)
     if args.command == "init":
         return initialize(
             root, args.feature, args.repository, args.site, args.jira_project, args.space_id, OWNER
